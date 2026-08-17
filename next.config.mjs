@@ -1,19 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     unoptimized: true,
   },
+  // Next.js 15: top-level key for server external packages
+  serverExternalPackages: ['pdfkit'],
   // Ensure pdfkit can find its font data files at runtime
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals = [...(config.externals || []), 'pdfkit'];
     }
     return config;
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['pdfkit'],
   },
 
   // ─── Security Headers (FIX HIGH-06) ──────────────────────────────────────

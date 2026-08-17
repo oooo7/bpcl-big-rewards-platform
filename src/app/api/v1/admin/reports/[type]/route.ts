@@ -44,9 +44,10 @@ const REPORT_LABELS: Record<string, string> = {
 
 // ─── GET Handler ──────────────────────────────────────────────────────────────
 
-export async function GET(req: NextRequest, { params }: { params: { type: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ type: string }> }) {
   try {
-    const reportType = params.type.toLowerCase();
+    const { type } = await params;
+    const reportType = type.toLowerCase();
     const requiredPermission = REPORT_PERMISSIONS[reportType];
     if (!requiredPermission) {
       return NextResponse.json({ success: false, error: 'UNKNOWN_REPORT_TYPE' }, { status: 404 });

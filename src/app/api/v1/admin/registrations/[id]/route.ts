@@ -4,12 +4,12 @@ import { handleApiError } from '@/lib/errors';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(req.url);
     const userRole = searchParams.get('userRole') || 'VALIDATION_TEAM';
-    const registrationId = params.id;
+    const { id: registrationId } = await params;
 
     const detail = await AdminService.getRegistrationById(registrationId, userRole);
     return NextResponse.json({ success: true, registration: detail });

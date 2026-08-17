@@ -5,12 +5,12 @@ import { maskCustomerPII } from '@/lib/auth';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(req.url);
     const userRole = searchParams.get('userRole') || 'DRAW_MANAGER';
-    const drawId = params.id;
+    const { id: drawId } = await params;
 
     const draw = await db.drawSchedule.findUnique({
       where: { id: drawId },

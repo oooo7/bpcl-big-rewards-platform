@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Download, Filter, Search, ChevronLeft, ChevronRight, RefreshCw, AlertCircle, FileX } from 'lucide-react';
 import { REPORT_COLUMNS } from '@/lib/report-columns';
@@ -53,8 +53,8 @@ function StatusBadge({ value }: { value: string }) {
 
 const STATUS_KEYS = ['status','validationStatus','verificationStatus','dispatchStatus','registrationStatus','isActive'];
 
-export default function ReportViewPage({ params }: { params: { type: string } }) {
-  const reportType = params.type;
+export default function ReportViewPage({ params }: { params: Promise<{ type: string }> }) {
+  const { type: reportType } = use(params);
   const cols = REPORT_COLUMNS[reportType] || [];
   const label = REPORT_LABELS[reportType] || reportType;
 
