@@ -14,8 +14,8 @@ export default function AdminLoginPage() {
 
   const demoPresets = [
     { label: 'Campaign Admin', email: 'admin@bpcl.in', role: 'CAMPAIGN_ADMIN', desc: 'Full platform access & PII permission' },
-    { label: 'Validation Officer', email: 'validator@bpcl.in', role: 'VALIDATION_TEAM', desc: 'Bill verification & masked PII view' },
-    { label: 'Operations Lead', email: 'ops@bpcl.in', role: 'OPERATIONS_ADMIN', desc: 'Registrations & Rewards management' },
+    { label: 'Validation Officer', email: 'validation@bpcl.in', role: 'VALIDATION_TEAM', desc: 'Bill verification & masked PII view' },
+    { label: 'Operations Lead', email: 'operations@bpcl.in', role: 'OPERATIONS_ADMIN', desc: 'Registrations & Rewards management' },
     { label: 'Auditor', email: 'auditor@bpcl.in', role: 'AUDITOR', desc: 'Read-only access & audit logs' },
   ];
 
