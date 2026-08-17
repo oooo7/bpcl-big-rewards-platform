@@ -20,15 +20,17 @@ describe('Adversarial QA & Campaign Fraud Test Suite (22 Scenarios)', () => {
 
     const uniqueBillNo = `DUPLICATE-BILL-${Date.now()}`;
     const amount = 1750;
+    const testMobile1 = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
+    const testMobile2 = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
 
     // 1st upload
     const reg1 = await RegistrationService.createRegistration({
       campaignSlug: campaign.slug,
       stationCode: station.stationCode,
       fullName: 'Fraud Tester 1',
-      mobileNumber: '9988776655',
+      mobileNumber: testMobile1,
       vehicleType: 'CAR',
-      vehicleNumber: 'GJ01AA9999',
+      vehicleNumber: `GJ01AA${Math.floor(Math.random() * 9000 + 1000)}`,
       fuelType: 'PETROL',
       fuelAmount: amount,
       billNumber: uniqueBillNo,
@@ -43,7 +45,7 @@ describe('Adversarial QA & Campaign Fraud Test Suite (22 Scenarios)', () => {
         campaignSlug: campaign.slug,
         stationCode: station2.stationCode,
         fullName: 'Fraud Tester 2',
-        mobileNumber: '9988776644',
+        mobileNumber: testMobile2,
         vehicleType: 'CAR',
         vehicleNumber: 'GJ01BB8888',
         fuelType: 'PETROL',
