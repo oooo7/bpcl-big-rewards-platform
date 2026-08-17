@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Download, Filter, Search, ChevronLeft, ChevronRight, RefreshCw, AlertCircle, FileX } from 'lucide-react';
 import { REPORT_COLUMNS } from '@/lib/report-columns';
+import { AdminSidebar } from '@/components/AdminSidebar';
 
 const REPORT_LABELS: Record<string, string> = {
   registration: 'Registration Report', bill_upload: 'Bill Upload Report',
@@ -132,7 +133,9 @@ export default function ReportViewPage({ params }: { params: { type: string } })
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 space-y-5">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex">
+      <AdminSidebar />
+      <main className="flex-1 p-6 space-y-5 overflow-y-auto">
       {/* Header */}
       <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -335,6 +338,7 @@ export default function ReportViewPage({ params }: { params: { type: string } })
           </div>
         )}
       </div>
+      </main>
     </div>
   );
 }

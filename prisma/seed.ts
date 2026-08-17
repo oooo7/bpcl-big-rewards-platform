@@ -243,13 +243,17 @@ async function main() {
 
   // 7. System Administrative Users
   const users = [
-    { name: 'Super Admin', email: 'admin@bpcl.in', role: 'SUPER_ADMIN' },
-    { name: 'Campaign Admin', email: 'campaign@bpcl.in', role: 'CAMPAIGN_ADMIN' },
-    { name: 'Validation Lead', email: 'validation@bpcl.in', role: 'VALIDATION_TEAM' },
-    { name: 'Draw Auditor', email: 'draw@bpcl.in', role: 'DRAW_MANAGER' },
-    { name: 'Fulfillment Lead', email: 'fulfillment@bpcl.in', role: 'FULFILLMENT_TEAM' },
-    { name: 'Rakesh Patel (DSM)', email: 'dsm.rakesh@bpcl.in', role: 'DSM', tId: territoryA.id },
-    { name: 'System Auditor', email: 'auditor@bpcl.in', role: 'AUDITOR' },
+    { name: 'Super Admin',              email: 'admin@bpcl.in',              role: 'SUPER_ADMIN' },
+    { name: 'Campaign Admin',           email: 'campaign@bpcl.in',           role: 'CAMPAIGN_ADMIN' },
+    { name: 'Validation Lead',          email: 'validation@bpcl.in',         role: 'VALIDATION_TEAM' },
+    { name: 'Validation Officer',       email: 'validation.officer@bpcl.in', role: 'VALIDATION_TEAM' },
+    { name: 'Operations Lead',          email: 'operations@bpcl.in',         role: 'OPERATIONS_ADMIN' },
+    { name: 'Operations Manager',       email: 'operations.lead@bpcl.in',    role: 'OPERATIONS_ADMIN' },
+    { name: 'Draw Manager',             email: 'draw.manager@bpcl.in',       role: 'DRAW_MANAGER' },
+    { name: 'Draw Auditor',             email: 'draw@bpcl.in',               role: 'DRAW_MANAGER' },
+    { name: 'Fulfillment Lead',         email: 'fulfillment@bpcl.in',        role: 'FULFILLMENT_TEAM' },
+    { name: 'Rakesh Patel (DSM)',       email: 'dsm.rakesh@bpcl.in',         role: 'DSM', tId: territoryA.id },
+    { name: 'System Auditor',           email: 'auditor@bpcl.in',            role: 'AUDITOR' },
   ];
 
   for (const u of users) {

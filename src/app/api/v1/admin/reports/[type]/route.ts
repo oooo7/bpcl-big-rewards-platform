@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hasPermission } from '@/lib/auth';
+import { hasPermission, verifySessionToken } from '@/lib/auth';
 import { handleApiError } from '@/lib/errors';
 import { logAuditEvent } from '@/lib/audit';
 import { getReportData, REPORT_PERMISSIONS, ReportFilters, PaginationParams } from '@/services/report.service';
@@ -12,9 +12,13 @@ async function getSessionUser(req: NextRequest) {
   try {
     const cookie = req.cookies.get('bpcl_admin_session');
     if (!cookie?.value) return null;
-    const session = JSON.parse(decodeURIComponent(cookie.value));
-    if (!session?.id) return null;
-    const user = await db.user.findUnique({ where: { id: session.id }, select: { id: true, email: true, role: true, territoryId: true, name: true } });
+    // Use the same signed JWT verification as middleware
+    const session = await verifySessionToken(cookie.value);
+    if (!session?.userId) return null;
+    const user = await db.user.findUnique({
+      where: { id: session.userId },
+      select: { id: true, email: true, role: true, territoryId: true, name: true },
+    });
     return user;
   } catch {
     return null;
