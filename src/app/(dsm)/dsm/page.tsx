@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { db } from '@/lib/db';
 import { Trophy, Fuel, Users, FileCheck, QrCode, ArrowLeft, Award, Shield } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function DSMDashboardPage() {

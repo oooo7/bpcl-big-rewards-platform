@@ -42,7 +42,7 @@ const REPORT_LABELS: Record<string, string> = {
   audit:                 'Audit Log Report',
 };
 
-// ─── GET Handler ──────────────────────────────────────────────────────────────
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ type: string }> }) {
   try {

@@ -6,6 +6,8 @@ import { logAuditEvent } from '@/lib/audit';
 import { createWinnerOtp, verifyWinnerOtp } from '@/lib/otp';
 import { FulfillmentService } from '@/services/fulfillment.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

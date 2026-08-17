@@ -6,6 +6,8 @@ import { handleApiError } from '@/lib/errors';
 import { maskCustomerPII } from '@/lib/auth';
 import { FulfillmentService } from '@/services/fulfillment.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

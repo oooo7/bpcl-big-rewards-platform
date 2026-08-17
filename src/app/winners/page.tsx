@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import { db } from '@/lib/db';
 import { Award, Trophy, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function WinnersPage() {

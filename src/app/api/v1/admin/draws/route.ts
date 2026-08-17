@@ -6,6 +6,8 @@ import { handleApiError } from '@/lib/errors';
 import { maskCustomerPII, hasPermission } from '@/lib/auth';
 import { AppError } from '@/lib/errors';
 
+export const dynamic = 'force-dynamic';
+
 // Read verified session from middleware-injected headers
 function getSessionFromHeaders(req: NextRequest) {
   return {

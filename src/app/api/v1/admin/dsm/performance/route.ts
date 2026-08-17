@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleApiError } from '@/lib/errors';
 import { DSMService } from '@/services/dsm.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
