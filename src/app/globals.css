@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-blue: #003366;
+  --dark-blue: #002244;
+  --bpcl-yellow: #FFC72C;
+  --bpcl-gold: #E6AF00;
+  --accent-blue: #0080FF;
+  --bg-slate: #F8FAFC;
+}
+
+body {
+  background-color: var(--bg-slate);
+  color: #0F172A;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom BPCL Styling Utilities */
+.bpcl-gradient-header {
+  background: linear-gradient(135deg, #002244 0%, #003366 50%, #004080 100%);
+}
+
+.bpcl-gradient-gold {
+  background: linear-gradient(135deg, #FFC72C 0%, #E6AF00 100%);
+}
+
+.bpcl-card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(0, 51, 102, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.bpcl-card-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.bpcl-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 51, 102, 0.14), 0 4px 10px -2px rgba(0, 0, 0, 0.06);
+}
+
+/* Mobile Friendly Scratch Card Overlay */
+.scratch-canvas-container {
+  touch-action: none;
+  user-select: none;
+}
+
+/* Custom Scrollbar for Dense Admin Views */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

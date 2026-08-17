@@ -1,0 +1,334 @@
+// Prisma Schema for BPCL Big Rewards Campaign Platform
+// Designed for Enterprise Annual Reusability & Relational Integrity
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Campaign {
+  id                String            @id @default(uuid())
+  slug              String            @unique
+  title             String
+  season            String            // e.g. "Season 2"
+  startDate         DateTime
+  endDate           DateTime
+  promotionLaunch   DateTime
+  isActive          Boolean           @default(true)
+  rulesJson         String            // JSON stringified rules
+  brandingJson      String            // JSON stringified colors/logos
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  stations          FuelStation[]
+  qrCodes           QRCode[]
+  registrations     Registration[]
+  rewards           RewardInventory[]
+  draws             DrawSchedule[]
+  prizes            PrizeInventory[]
+}
+
+model Territory {
+  id        String        @id @default(uuid())
+  code      String        @unique
+  name      String
+  state     String
+  createdAt DateTime      @default(now())
+
+  dsms      DSM[]
+  stations  FuelStation[]
+  users     User[]
+}
+
+model DSM {
+  id          String        @id @default(uuid())
+  dsmCode     String        @unique
+  name        String
+  mobile      String
+  email       String
+  territoryId String
+  territory   Territory     @relation(fields: [territoryId], references: [id])
+  createdAt   DateTime      @default(now())
+
+  stations    FuelStation[]
+}
+
+model FuelStation {
+  id          String         @id @default(uuid())
+  stationCode String         @unique // e.g. "GJ1001"
+  name        String
+  address     String
+  city        String
+  territoryId String
+  territory   Territory      @relation(fields: [territoryId], references: [id])
+  dsmId       String?
+  dsm         DSM?           @relation(fields: [dsmId], references: [id])
+  campaignId  String
+  campaign    Campaign       @relation(fields: [campaignId], references: [id])
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+
+  qrCodes     QRCode[]
+  registrations Registration[]
+
+  @@index([territoryId, isActive])
+  @@index([campaignId])
+}
+
+model QRCode {
+  id            String      @id @default(uuid())
+  stationId     String
+  station       FuelStation @relation(fields: [stationId], references: [id])
+  campaignId    String
+  campaign      Campaign    @relation(fields: [campaignId], references: [id])
+  hmacSignature String
+  scanCount     Int         @default(0)
+  status        String      @default("ACTIVE") // ACTIVE, DEACTIVATED
+  createdAt     DateTime    @default(now())
+
+  @@index([stationId, status])
+}
+
+model Customer {
+  id            String         @id @default(uuid())
+  mobileNumber  String         @unique
+  fullName      String
+  isBlacklisted Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+
+  registrations Registration[]
+}
+
+model Registration {
+  id            String      @id @default(uuid())
+  campaignId    String
+  campaign      Campaign    @relation(fields: [campaignId], references: [id])
+  stationId     String
+  station       FuelStation @relation(fields: [stationId], references: [id])
+  customerId    String
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  
+  vehicleType   String
+  vehicleNumber String
+  fuelType      String
+  fuelAmount    Float
+  billNumber    String
+  qrSource      String      @default("DIRECT_SCAN")
+  
+  // State Machine: STARTED, SUBMITTED, BILL_UPLOADED, UNDER_VALIDATION, VALID, INVALID, REJECTED, REWARD_ELIGIBLE, REWARD_ISSUED, DRAW_ELIGIBLE, FRAUD_FLAGGED, CANCELLED
+  status        String      @default("SUBMITTED")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  bill          Bill?
+  reward        RewardTransaction?
+  drawEntries   DrawEntry[]
+  winners       Winner[]
+  fraudFlags    FraudFlag[]
+
+  @@index([campaignId, status, createdAt])
+  @@index([stationId, billNumber, fuelAmount])
+  @@index([customerId])
+}
+
+model Bill {
+  id               String       @id @default(uuid())
+  registrationId   String       @unique
+  registration     Registration @relation(fields: [registrationId], references: [id])
+  
+  fileKey          String
+  fileHash         String       // SHA-256 binary hash for exact duplicate detection
+  fileFormat       String       // JPG, PNG, PDF
+  fileSize         Int
+  
+  ocrBillNumber    String?
+  ocrAmount        Float?
+  ocrConfidence    Float?       // 0.0 to 1.0
+  
+  validationStatus String       @default("PENDING") // PENDING, AUTO_VALIDATED, MANUALLY_APPROVED, MANUALLY_REJECTED, DUPLICATE_FLAGGED
+  reviewerNotes    String?
+  validatedBy      String?
+  validatedAt      DateTime?
+  createdAt        DateTime     @default(now())
+
+  @@index([fileHash])
+  @@index([validationStatus])
+}
+
+model RewardInventory {
+  id                String   @id @default(uuid())
+  campaignId        String
+  campaign          Campaign @relation(fields: [campaignId], references: [id])
+  
+  title             String   // e.g. "₹100 Fuel Voucher"
+  rewardType        String   // FUEL_VOUCHER, SHOPPING_VOUCHER, MERCHANDISE
+  totalQuantity     Int
+  availableQuantity Int
+  unitValue         Float
+  
+  transactions      RewardTransaction[]
+
+  @@index([campaignId, availableQuantity])
+}
+
+model RewardTransaction {
+  id             String          @id @default(uuid())
+  registrationId String          @unique
+  registration   Registration    @relation(fields: [registrationId], references: [id])
+  rewardId       String
+  reward         RewardInventory @relation(fields: [rewardId], references: [id])
+  
+  couponCode     String
+  status         String          @default("ISSUED") // ISSUED, REDEEMED, EXPIRED
+  issuedAt       DateTime        @default(now())
+}
+
+model DrawSchedule {
+  id                   String      @id @default(uuid())
+  campaignId           String
+  campaign             Campaign    @relation(fields: [campaignId], references: [id])
+  
+  drawName             String      // e.g. "1st Fortnightly Draw", "Grand Bumper Draw"
+  drawType             String      // FORTNIGHTLY, GRAND_BUMPER
+  scheduledDate        DateTime
+  winnerCount          Int
+  status               String      @default("SCHEDULED") // SCHEDULED, FROZEN, EXECUTED, CANCELLED
+  
+  totalEligibleEntries Int         @default(0)
+  executionHash        String?
+  executedAt           DateTime?
+  executedBy           String?
+
+  entries              DrawEntry[]
+  winners              Winner[]
+
+  @@index([campaignId, scheduledDate])
+}
+
+model DrawEntry {
+  id             String       @id @default(uuid())
+  drawId         String
+  draw           DrawSchedule @relation(fields: [drawId], references: [id])
+  registrationId String
+  registration   Registration @relation(fields: [registrationId], references: [id])
+  entryHash      String
+  createdAt      DateTime     @default(now())
+
+  @@unique([drawId, registrationId])
+  @@index([drawId])
+}
+
+model Winner {
+  id                 String       @id @default(uuid())
+  drawId             String
+  draw               DrawSchedule @relation(fields: [drawId], references: [id])
+  registrationId     String
+  registration       Registration @relation(fields: [registrationId], references: [id])
+  
+  prizeName          String
+  prizeValue         Float
+  
+  // PENDING_VERIFICATION, VERIFIED, REJECTED, DISPATCHED, DELIVERED
+  verificationStatus String       @default("PENDING_VERIFICATION")
+  otpHash            String?
+  otpExpiresAt       DateTime?
+  otpAttempts        Int          @default(0)
+  otpResendCount     Int          @default(0)  // Security: limit OTP resends
+  verifiedAt         DateTime?
+  verifiedBy         String?
+
+  dispatch           Dispatch?
+
+  @@index([drawId, verificationStatus])
+}
+
+model PrizeInventory {
+  id             String   @id @default(uuid())
+  campaignId     String
+  campaign       Campaign @relation(fields: [campaignId], references: [id])
+  name           String
+  sku            String   @unique
+  prizeType      String   // FORTNIGHTLY, GRAND_BUMPER
+  totalStock     Int
+  availableStock Int
+  unitValue      Float
+}
+
+model Dispatch {
+  id                   String    @id @default(uuid())
+  winnerId             String    @unique
+  winner               Winner    @relation(fields: [winnerId], references: [id])
+  
+  prizeName            String
+  shippingAddress      String
+  nodalPoint           String
+  
+  // DISPATCH_CREATED, MATERIAL_SENT_NODAL, RECEIVED_NODAL, IN_TRANSIT, DELIVERED
+  dispatchStatus       String    @default("DISPATCH_CREATED")
+  trackingNumber       String?
+  
+  receiverName         String
+  receiverMobile       String
+  deliveryOtpHash      String?
+  deliveryOtpExpiresAt DateTime?
+  deliveryOtpAttempts  Int       @default(0)  // Security: lockout after 3 failures
+  deliveryPhotoUrl     String?
+  deliverySignatureUrl String?
+  
+  dispatchedAt         DateTime?
+  deliveredAt          DateTime?
+
+  @@index([dispatchStatus])
+}
+
+model User {
+  id          String     @id @default(uuid())
+  email       String     @unique
+  name        String
+  passwordHash String
+  
+  // SUPER_ADMIN, CAMPAIGN_ADMIN, OPERATIONS_ADMIN, VALIDATION_TEAM, DRAW_MANAGER, WINNER_VERIFICATION_TEAM, FULFILLMENT_TEAM, DSM, STATION_USER, AUDITOR, READ_ONLY_MGMT
+  role        String
+  territoryId String?
+  territory   Territory? @relation(fields: [territoryId], references: [id])
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  auditLogs   AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  actorRole  String
+  action     String
+  entityType String
+  entityId   String
+  oldValues  String?  // JSON stringified
+  newValues  String?  // JSON stringified
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model FraudFlag {
+  id             String       @id @default(uuid())
+  registrationId String?
+  registration   Registration? @relation(fields: [registrationId], references: [id])
+  mobileNumber   String?
+  stationCode    String?
+  flagType       String       // DUPLICATE_BILL_HASH, DUPLICATE_RECEIPT_NO, EXCESSIVE_SUBMISSIONS, SUSPICIOUS_OCR
+  reason         String
+  severity       String       // LOW, MEDIUM, HIGH, CRITICAL
+  status         String       @default("OPEN") // OPEN, RESOLVED, IGNORED
+  createdAt      DateTime     @default(now())
+
+  @@index([status])
+}
